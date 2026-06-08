@@ -1,6 +1,6 @@
 <?php
 // Requisito 1: Verificação de sessão modularizada
-include("./components/session_check.php");
+include("./public/session_check.php");
 include("../infra/db/connect.php");
 
 $mensagem = "";
@@ -27,7 +27,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 }
 
 // Requisito 1: Cabeçalho modularizado
-include("./components/header.php");
+include("./public/header.php");
 ?>
 
     <h3>Bem-Vindo, <?php echo htmlspecialchars($_SESSION["usuario"]); ?>!</h3>
@@ -53,7 +53,7 @@ include("./components/header.php");
 
     <?php 
         // Inclui a tabela de listagem
-include("./components/table.php"); 
+include("./public/components/table.php"); 
 ?>
 
     <script>
@@ -66,5 +66,5 @@ include("./components/table.php");
 
 <?php 
 // Requisito 1: Rodapé modularizado
-include("./components/footer.php"); 
+include("./public/footer.php"); 
 ?>
