@@ -1,66 +1,70 @@
 <?php
-session_start();
-if(!isset($_SESSION["usuario"])){
-    header("Location: ../index.php");
-    exit();
-}
-
+// Requisito 1: Verificação de sessão modularizada
+include("components/session_check.php");
 include("../infra/db/connect.php");
+
+$mensagem = "";
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     $novoUsuario = $_POST['usuario'];
     $novaSenha = $_POST['senha'];
 
-    $sql = "INSERT INTO usuarios (usuario,senha) 
-    VALUES ('$novoUsuario','$novaSenha')";  
+    // Melhoria 1: Verificação de usuário duplicado no cadastro
+    $checkSql = "SELECT id FROM usuarios WHERE usuario = '$novoUsuario'";
+    $checkResult = $conn->query($checkSql);
 
-    if($conn->query($sql) === TRUE){
-        echo "<script> alert('Usuário cadastrado com sucesso!')</script>";
-    }else{
-        echo "<script> alert('Erro ao cadastrar')</script>";
+    if($checkResult && $checkResult->num_rows > 0) {
+        $mensagem = "<p class='erro'>Erro: Este usuário já está cadastrado!</p>";
+    } else {
+        $sql = "INSERT INTO usuarios (usuario, senha) VALUES ('$novoUsuario', '$novaSenha')";  
+
+        if($conn->query($sql) === TRUE){
+            $mensagem = "<p class='sucesso'>Usuário cadastrado com sucesso!</p>";
+        }else{
+            $mensagem = "<p class='erro'>Erro ao cadastrar no banco de dados.</p>";
+        }
     }
+}
 
-};
-
+// Requisito 1: Cabeçalho modularizado
+include("components/header.php");
 ?>
 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body>
-    <h3>Bem-Vindo! <?php echo $_SESSION["usuario"]; ?></h3>
-    <a href="logout.php"> Sair</a>
+    <h3>Bem-Vindo, <?php echo htmlspecialchars($_SESSION["usuario"]); ?>!</h3>
+    <a href="logout.php" class="btn-sair" onclick="return confirm('Tem certeza que deseja sair do sistema?')">Sair do Sistema</a>
 
     <hr>
-    <h4>Cadastro de Novo Usuário.</h4>
+    <h4>Cadastro de Novo Usuário</h4>
+    
+    <?php echo $mensagem; ?>
+
     <form method="POST">
         <label>Usuário:</label>
-        <input type="text" name="usuario">
-        <br>
+        <input type="text" name="usuario" required>
+        
         <label>Senha:</label>
-        <input type="password" name="senha">
-        <br>
-        <?php
+        <input type="password" name="senha" required>
         
-            if(isset($erro)){
-                echo $erro;
-            };
-        
-        ?>
-        <br>
         <button type="submit">Cadastrar</button>
     </form>
-    <hr>
-    <?php
     
-    include("components/table.php")
+    <hr>
+    <h4>Lista de Usuários Cadastrados</h4>
 
+    <?php 
+        // Inclui a tabela de listagem
+        include("components/table.php"); 
     ?>
 
+    <script>
+    function confirmarExclusao(id) {
+        if (confirm("Tem certeza absoluta de que deseja excluir este usuário?")) {
+            window.location.href = "excluir.php?id=" + id;
+        }
+    }
+    </script>
 
-
-</body>
-</html>
+<?php 
+// Requisito 1: Rodapé modularizado
+include("components/footer.php"); 
+?>
