@@ -1,20 +1,21 @@
 <?php
-
-session_start();
-if(!isset($_SESSION["usuario"])){
-    header("Location: ../index.php");
-    exit();
-}
-
+// Requisito 1: Verificação de sessão modularizada
+include("components/session_check.php");
 include("../infra/db/connect.php");
 
-$id = $_GET["id"];
+if (isset($_GET["id"])) {
+    $id = intval($_GET["id"]); // Proteção básica para garantir que é um número
 
-$sql = " DELETE FROM usuarios WHERE id = $id ";
+    $sql = "DELETE FROM usuarios WHERE id = $id";
 
-if($conn->query($sql) === TRUE){
+    if($conn->query($sql) === TRUE){
+        header("Location: home.php");
+        exit();
+    } else {
+        echo "Erro ao deletar registro: " . $conn->error;
+    }
+} else {
     header("Location: home.php");
     exit();
 }
-
 ?>
